@@ -1,0 +1,8 @@
+{
+  "setupFiles": [],
+  "transform": {
+    "^.+\\.(t|j)s?$": "ts-jest"
+  },
+  "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(j|t)s$",
+  "moduleFileExtensions": ["ts", "js", "json", "node"]
+}
