@@ -1,7 +1,7 @@
 # js-differ
 A JavaScript library for get and apply diffs for JSON data values.
 ## Installation
-    npm install reselect
+    npm install js-differ
 ## API
 ### Types
 ```typescript
