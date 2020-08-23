@@ -8,27 +8,27 @@ export const type = TYPES.patchObject;
 export const get: GetFunction = (from, to, path, getDiff) => {
   const data: PatchData = {};
   const fromKeys = new Set(Object.keys(from));
-  let isAllReplace = true
-  let isChanged = false
+  let isAllReplace = true;
+  let isChanged = false;
   for (const key of Object.keys(to)) {
     const diff = getDiff(from[key], to[key], path.concat(key));
     if (fromKeys.has(key)) {
       fromKeys.delete(key);
     }
     if (isAllReplace && !replace.is(diff)) {
-      isAllReplace = false 
+      isAllReplace = false;
     }
     if (!leave.is(diff)) {
-      isChanged = true
-      data[key] = diff
+      isChanged = true;
+      data[key] = diff;
     }
   }
   if (isChanged || fromKeys.size) {
     if (isAllReplace) {
-      return replace.get(from, to, path, getDiff)
+      return replace.get(from, to, path, getDiff);
     }
     if (fromKeys.size) {
-      fromKeys.forEach((key) => data[key] = remove.get(from, to, path, getDiff));
+      fromKeys.forEach((key) => (data[key] = remove.get(from, to, path, getDiff)));
     }
     return {
       [FIELDS.type]: TYPES.patchObject,

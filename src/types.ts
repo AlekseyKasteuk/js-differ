@@ -27,17 +27,12 @@ export type GetOptions = {
 export type CustomHandlerFunction = (value: any, customParams: any, path: Path, apply: PublicApplyFunction) => any;
 export type ApplyOptions = {
   customHandler: CustomHandlerFunction;
-}
+};
 
-export type PublicGetFunction = (from: any, to: any, path: Path) => Diff
-export type GetFunction = (
-  from: any,
-  to: any,
-  path: Path,
-  get: PublicGetFunction,
-) => Diff;
+export type PublicGetFunction = (from: any, to: any, path: Path) => Diff;
+export type GetFunction = (from: any, to: any, path: Path, get: PublicGetFunction) => Diff;
 
-export type PublicApplyFunction = (value: any, diff: Diff, path: Path) => any
+export type PublicApplyFunction = (value: any, diff: Diff, path: Path) => any;
 export type ApplyFunction = (value: any, diff: Diff, path: Path, apply: PublicApplyFunction) => any;
 
 export type IsFunction = (diff: Diff) => boolean;
