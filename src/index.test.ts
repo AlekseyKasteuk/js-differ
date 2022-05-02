@@ -1,9 +1,9 @@
-import { Path, CheckFunction, GetOptions, GetCustomParamsFunction, CustomHandlerFunction, ApplyOptions } from './types';
-import { getDiff, applyDiff, isEqualDefault, isReplaceDefault } from './index';
+import { Path, CheckFunction, GetOptions } from './types';
+import { getDiff, applyDiff } from './index';
 
-const getResult = (from: any, to: any, getOptions?: Partial<GetOptions>, applyOptions?: Partial<ApplyOptions>) => {
-  const diff = getDiff(from, to, getOptions);
-  const result = applyDiff(from, diff, applyOptions);
+const getResult = (from: any, to: any, options?: GetOptions) => {
+  const diff = getDiff(from, to, options);
+  const result = applyDiff(from, diff);
   return result;
 };
 
@@ -18,9 +18,11 @@ const get = (value: any, path: Path): any => {
   return get(value[key], rest);
 };
 
-const strictEqual = (from: any, to: any, options?: Partial<GetOptions>, compareWith: any = to) =>
-  expect(getResult(from, to, options)).toBe(compareWith);
-const equal = (from: any, to: any, options?: Partial<GetOptions>, compareWith: any = to) =>
+const strictEqual = (from: any, to: any, options?: GetOptions, compareWith: any = to) => {
+  const result = getResult(from, to, options);
+  return expect(result).toBe(compareWith);
+};
+const equal = (from: any, to: any, options?: GetOptions, compareWith: any = to) =>
   expect(getResult(from, to, options)).toStrictEqual(compareWith);
 
 const sum = (array: any[]): number => array.reduce((acc: number, item: any): number => acc + item, 0);
@@ -61,12 +63,12 @@ describe('JS Differ', () => {
       const from = {
         constant: 100,
         abs: 1,
-        sum: [1, 2, 3, 4],
+        sum: [3, 7],
       };
       const to = {
         constant: 10,
         abs: -1,
-        sum: [4, 6],
+        sum: [2, 8],
       };
       const isEqual: CheckFunction = (from, to, path) => {
         switch (get(structure, path)) {
@@ -77,20 +79,13 @@ describe('JS Differ', () => {
           case 'sum':
             return sum(from) === sum(to);
         }
-        return isEqualDefault(from, to, path);
+        return false;
       };
       strictEqual(from, to);
       strictEqual(from, to, { isEqual }, from);
     });
-    it('Custom isRemove function', () => {
-      const isRemove: CheckFunction = (_, to) => to === undefined || to === null;
-      const from = { a: 10, b: false, c: {}, d: [] };
-      const to = { a: null, b: null, c: null };
-      equal(from, to);
-      equal(from, to, { isRemove }, {});
-    });
     it('Custom isReplace function', () => {
-      const isReplace: CheckFunction = (from, to, path) => path[0] === 'b' || isReplaceDefault(from, to, path);
+      const isReplace: CheckFunction = (from, to, path) => path[0] === 'b';
       const from = { a: new Array(100).fill({}), b: new Array(100).fill({}) };
       const to = { a: new Array(100).fill({}), b: new Array(100).fill({}) };
       strictEqual(from, to, {}, from);
@@ -98,13 +93,5 @@ describe('JS Differ', () => {
       expect(result.a).toBe(from.a);
       expect(result.b).toBe(to.b);
     });
-  });
-  describe('Custom diff', () => {
-    const isCustom: CheckFunction = (from, to) => Array.isArray(from) && Array.isArray(to);
-    const getCustomParams: GetCustomParamsFunction = (from, to) =>
-      [...from, ...to].filter((value, index, arr) => arr.indexOf(value) === index);
-    const customHandler: CustomHandlerFunction = (_, value) => value;
-    const result = getResult([1, 2, 3, 4], [3, 4, 5, 6], { isCustom, getCustomParams }, { customHandler });
-    expect(result).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });
